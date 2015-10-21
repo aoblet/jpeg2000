@@ -3,8 +3,8 @@
 
 namespace jpeg2000{
     namespace filters{
-        vector<double> interpole2(const vector<double>& signal){
-            vector<double> interpolated;
+        Signal1D interpole2(const Signal1D& signal){
+            Signal1D interpolated;
             for(double x: signal){
                 interpolated.push_back(x);
                 interpolated.push_back(0);
@@ -12,48 +12,49 @@ namespace jpeg2000{
             return interpolated;
         }
 
-        vector<double> decimation2(const vector<double>& signal){
-            vector<double> decimated;
+        Signal1D decimation2(const Signal1D& signal){
+            Signal1D decimated;
             int halfSize = (int)signal.size()/2;
 
             for(int i=0; i<halfSize; ++i)
                 decimated.push_back(signal[i<<1]); // <<1 == *2
             return decimated;
         }
-
-        vector<double> convol(const vector<double>& signal, vector<double>& filter){
+        Signal1D convol(const Signal1D& signal, const Signal1D& filter){
             int sizeSignal = (int)signal.size(),
                     sizeFilter = (int)filter.size();
-            vector<double> filtered((size_t)sizeSignal, 0);
+            Signal1D filtered(sizeSignal, 0);
 
-            double tmpSignal_n_minus_k;
             for(int n=0; n<sizeSignal; ++n){
                 for(int k=-sizeFilter/2; k<sizeFilter/2; ++k){
                     // handle mirror symmetry
-                    if(n-k < -1)
-                        tmpSignal_n_minus_k = signal[(n-k) * -1];
-                    else if(n-k > sizeSignal -1)
-                        tmpSignal_n_minus_k = signal[2*sizeSignal - ((n-k) - sizeSignal+1)];
-                    else
-                        tmpSignal_n_minus_k = signal[n-k];
-
-                    filtered[n] += filter[k + (sizeFilter/2)]*tmpSignal_n_minus_k;
+                    filtered[n] += filter[k + (sizeFilter/2)]*mirrorSymmetry(signal, n-k);
                 }
             }
             return filtered;
         }
 
-        vector<double> analyseHaar(const vector<double>& signal){
-            vector<double>  xb, xh, concat_xb_xh,
+        double mirrorSymmetry(const Signal1D& signal, const int i){
+            if(i < -1)
+                return signal[i*-1];
+            if(i> signal.size()-1)
+                return signal[2*signal.size() - i + 1];
+            return signal[i];
+        }
+
+        Signal1D analyseHaar(const Signal1D& signal){
+            // sld == signalLowPassDecimated
+            // shd == signalHighPassDecimated
+            Signal1D  sld, shd, concat_sld_shd,
                     _h0 {1.0/sqrt(2), 1.0/sqrt(2) , 0},
                     _h1 {1.0/sqrt(2), -1.0/sqrt(2), 0};
 
-            xb = decimation2(convol(signal, _h0));
-            xh = decimation2(convol(signal, _h1));
-            concat_xb_xh = xb;
-            concat_xb_xh.insert(concat_xb_xh.end(), xh.begin(), xh.end());
+            sld = decimation2(convol(signal, _h0));
+            shd = decimation2(convol(signal, _h1));
+            concat_sld_shd = sld;
+            concat_sld_shd.insert(concat_sld_shd.end(), shd.begin(), shd.end());
 
-            return concat_xb_xh;
+            return concat_sld_shd;
         }
     }
 }

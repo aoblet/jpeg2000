@@ -5,16 +5,18 @@
 #ifndef JPEG2000_FILTER_H
 #define JPEG2000_FILTER_H
 
-#include <vector>
+#include "Signal1D.hpp"
 
 namespace jpeg2000 {
     namespace filters {
         using namespace std;
 
-        vector<double> interpole2(const vector<double>& signal);
-        vector<double> decimation2(const vector<double>& signal);
-        vector<double> convol(const vector<double>& signal, const vector<double>& filter);
-        vector<double> analyseHaar(const vector<double>& signal);
+        Signal1D interpole2(const Signal1D& signal);
+        Signal1D decimation2(const Signal1D& signal);
+        Signal1D convol(const Signal1D& signal, const Signal1D& filter);
+        Signal1D analyseHaar(const Signal1D& signal);
+        double mirrorSymmetry(const Signal1D& signal, const int i);
+
     }
 }
 #endif //JPEG2000_FILTER_H
