@@ -83,8 +83,7 @@ namespace jpeg2000{
         s << "# Representation of: " << signal._name << std::endl;
         for(auto tt: signal)
             s << tt << std::endl;
-        out << s.str();
-        return out;
+        return out << s.str();
     }
 
     Signal1D Signal1D::rampe() {
