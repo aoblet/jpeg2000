@@ -12,14 +12,17 @@
 #include <fstream>
 
 namespace jpeg2000{
+    /**
+     * Represents an 1D Signal. Values are stored as vector<double>.
+     */
     class Signal1D{
     protected:
-        std::string _name;
-        std::vector<double> _val;
-        bool _isPair;
+        std::string _name;          ///< Signal name, used for debug.
+        std::vector<double> _val;   ///< Signal values.
+        bool _isPair;               ///< Does the signal need to be pair. Default to true.
 
-        static Signal1D _RAMPE;
-        static Signal1D _LELECCUM;
+        static Signal1D _RAMPE;     ///< Rampe Signal "singleton". y = x for x = [0,..., 255]
+        static Signal1D _LELECCUM;  ///< Leleccum Signal "singleton".
 
     public:
         // constructors
