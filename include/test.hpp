@@ -8,10 +8,11 @@
 #include "Signal1D.hpp"
 #include <string>
 
-/**
- * Performs some tests onto filters.
- */
-namespace jpeg2000{ namespace test{
+namespace jpeg2000{
+    /**
+     * Performs some tests on filters.
+     */
+namespace test{
     /**
      * Process which factorized analyse_haar and reconstruction.
      * The computation is: analyse_haar then synthesis_haar(analyse_haar).
