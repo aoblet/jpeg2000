@@ -9,7 +9,6 @@
 #include <iostream>
 #include <string>
 #include <iterator>
-#include <fstream>
 
 namespace jpeg2000{
     /**
@@ -25,11 +24,15 @@ namespace jpeg2000{
         static Signal1D _LELECCUM;  ///< Leleccum Signal "singleton".
 
     public:
+        const static Signal1D rampe();
+        const static Signal1D leleccum();
+
         // constructors
         Signal1D();
         Signal1D(int n);
         Signal1D(int n, double initVal);
         Signal1D(const std::string & name, int n, double initVal, bool isPair=true);
+        Signal1D(const std::string & name);
         Signal1D(const Signal1D& s);
         Signal1D(Signal1D&& s) noexcept;
         Signal1D(std::initializer_list<double> __l);
@@ -38,12 +41,14 @@ namespace jpeg2000{
         void push_back(double v);
         double operator[](int i) const;
         double& operator[](int i);
+        Signal1D concat(const Signal1D& other) const;
+        std::string name() const;
+        void setName(const std::string & name);
+        Signal1D extract(int f, int t=-1) const;
 
         Signal1D& operator=(Signal1D&& other) noexcept;
         Signal1D& operator=(const Signal1D& other);
-
-        static Signal1D rampe();
-        static Signal1D leleccum();
+        Signal1D& operator+=(const double n);
 
         // iterators
         std::vector<double>::iterator begin();
