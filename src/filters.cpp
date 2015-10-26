@@ -1,6 +1,5 @@
 #include <cmath>
 #include "filters.hpp"
-#include <algorithm>
 
 namespace jpeg2000{ namespace filters{
     Signal1D interpole2(const Signal1D &signal) {
@@ -117,20 +116,19 @@ namespace jpeg2000{ namespace filters{
         // shd == signalHighPassDecimated
         Signal1D sld(decimation2(convol(inSignal, _h0))),
                  shd(decimation2(convol(inSignal, _h1)));
-        return sld + shd;
+        return sld.concat(shd);
     }
 
-    Signal1D _synthesisHaar(const Signal1D &haarSignal, const Signal1D &_g0, const Signal1D &_g1) {
-        // sbi == signalLowPassInterpolated
-        // shi == signalHighPassInterpolated
-        Signal1D sli(interpole2(convol(haarSignal, _g0))),
-                 shi(interpole2(convol(haarSignal, _g1))),
-                 reconstructedSignal;
+    Signal1D _synthesisHaar(const Signal1D &analysedSignal, const Signal1D &_g0, const Signal1D &_g1) {
+        Signal1D approximateCoeffs(analysedSignal.extract(0, analysedSignal.size()/2 - 1));
+        Signal1D detailsCoeffs(analysedSignal.extract(analysedSignal.size()/2));
 
-        reconstructedSignal = sli;
-        std::transform(reconstructedSignal.begin(), reconstructedSignal.end(), shi.begin(), shi.begin(), std::plus<double>());
-        return reconstructedSignal;
+        // sli == Signal LowPass  Interpolated
+        // shi == Signal HighPass Interpolated
+        Signal1D sli(interpole2(convol(approximateCoeffs, _g0))),
+                 shi(interpole2(convol(detailsCoeffs, _g1)));
 
+        return sli += shi ;  // reconstructed signal
     }
 }
 }

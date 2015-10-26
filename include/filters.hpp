@@ -33,10 +33,16 @@ namespace jpeg2000 {
         Signal1D convol(const Signal1D& signal, const Signal1D& filter);
 
         /**
-         * Factorisation of haar process with given filters.
+         * Factorisation of haar analyse process with given filters.
+         * @return A signal with approximate coefficients in the first half and the detail coefficients in the other.
+         * @return Under the following form [ ca0, ca1, ..., caN, cd0, cd1, ..., cdN]
          */
         Signal1D _analyseHaar(const Signal1D& inSignal, const Signal1D& _h0, const Signal1D& _h1 );
-        Signal1D _synthesisHaar(const Signal1D& haarSignal, const Signal1D& _g0, const Signal1D& _g1 );
+        /**
+         * Factorisation of haar synthesis process with given filters.
+         * @return the reconstructed signal from analysed signal i.e @param analysedSignal
+         */
+        Signal1D _synthesisHaar(const Signal1D& analysedSignal, const Signal1D& _g0, const Signal1D& _g1 );
 
         /**
          * Operates Classic Haar process.
