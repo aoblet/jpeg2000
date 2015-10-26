@@ -3,68 +3,49 @@
 //
 
 #include "test.hpp"
-#include <fstream>
-#include "Signal1D.hpp"
 #include "filters.hpp"
+#include <fstream>
+#include <string>
 
-void jpeg2000::test::leleccum_analyse_synthese_haar97() {
-    using namespace std;
-    system("mkdir -p haar97");
+namespace jpeg2000{ namespace test{
+    void _analyse_sythese_haar(const jpeg2000::Signal1D& in, const std::string& folderOut, bool is97){
+        std::string command_mkdir("mkdir -p " + folderOut);
+        std::string baseOutPath(folderOut + "/" + in.name() + "_");
+        std::string endOutPath(is97 ? "_97" : "");
+        endOutPath += ".txt";
 
-    jpeg2000::Signal1D leleccum(jpeg2000::Signal1D::leleccum());
+        // mkdir the dir folderOut
+        system(command_mkdir.c_str());
 
-    ofstream fileLeleccum("haar97/leleccum.txt");
-    ofstream fileLeleccumHaar("haar97/leleccumHaar.txt");
-    ofstream fileLeleccumHaarSynth("haar97/leleccumHaarSynth.txt");
+        std::ofstream fileSignal(baseOutPath + "original" + endOutPath);
+        std::ofstream fileSignalAnalyse(baseOutPath + "analyse" + endOutPath);
+        std::ofstream fileSignalSynth(baseOutPath + "synth" + endOutPath);
 
-    fileLeleccum << leleccum;
-    fileLeleccumHaar << jpeg2000::filters::analyseHaar(leleccum);
-    fileLeleccumHaarSynth << jpeg2000::filters::synthesisHaar(jpeg2000::filters::analyseHaar(leleccum));
-}
+        Signal1D analyse(is97 ? jpeg2000::filters::analyseHaar97(in) : jpeg2000::filters::analyseHaar(in));
+        Signal1D synth(is97 ? jpeg2000::filters::synthesisHaar97(analyse) : jpeg2000::filters::synthesisHaar(analyse));
 
-void jpeg2000::test::leleccum_analyse_synthese_haar() {
-    using namespace std;
-    system("mkdir -p haar");
+        fileSignal << in;
+        fileSignalAnalyse << analyse;
+        fileSignalSynth << synth;
+    }
 
-    jpeg2000::Signal1D leleccum(jpeg2000::Signal1D::leleccum());
+    void leleccum_analyse_synthese_haar97() {
+        _analyse_sythese_haar(jpeg2000::Signal1D::leleccum(), "haar", true);
+    }
 
-    ofstream fileLeleccum("haar/leleccum.txt");
-    ofstream fileLeleccumHaar("haar/leleccumHaar.txt");
-    ofstream fileLeleccumHaarSynth("haar/leleccumHaarSynth.txt");
+    void leleccum_analyse_synthese_haar() {
+        _analyse_sythese_haar(jpeg2000::Signal1D::leleccum(), "haar", false);
+    }
 
-    fileLeleccum << leleccum;
-    fileLeleccumHaar << jpeg2000::filters::analyseHaar97(leleccum);
-    fileLeleccumHaarSynth << jpeg2000::filters::synthesisHaar97(jpeg2000::filters::analyseHaar97(leleccum));
-}
+    void rampe_analyse_synthese_haar97() {
+        _analyse_sythese_haar(jpeg2000::Signal1D::rampe(), "haar", true);
+    }
 
-void jpeg2000::test::rampe_analyse_synthese_haar97() {
-    using namespace std;
-    system("mkdir -p haar97");
+    void rampe_analyse_synthese_haar() {
+        _analyse_sythese_haar(jpeg2000::Signal1D::rampe(), "haar" ,false);
+    }
 
-    jpeg2000::Signal1D rampe(jpeg2000::Signal1D::rampe());
-    jpeg2000::Signal1D rampeHaar(jpeg2000::filters::analyseHaar97(rampe));
+}}
 
-    ofstream fileRampe("haar/rampe.txt");
-    ofstream fileRampeHaar("haar/rampeHaar.txt");
-    ofstream fileRampeHaarSynth("haar/rampeHaarSynth.txt");
 
-    fileRampe << rampe;
-    fileRampeHaar << jpeg2000::filters::analyseHaar97(rampeHaar);
-    fileRampeHaarSynth << jpeg2000::filters::synthesisHaar97(jpeg2000::filters::analyseHaar97(rampe));
-}
 
-void jpeg2000::test::rampe_analyse_synthese_haar() {
-    using namespace std;
-    system("mkdir -p haar");
-
-    jpeg2000::Signal1D rampe(jpeg2000::Signal1D::rampe());
-    jpeg2000::Signal1D rampeHaar(jpeg2000::filters::analyseHaar(rampe));
-
-    ofstream fileRampe("haar/rampe.txt");
-    ofstream fileRampeHaar("haar/rampeHaar.txt");
-    ofstream fileRampeHaarSynth("haar/rampeHaarSynth.txt");
-
-    fileRampe << rampe;
-    fileRampeHaar << jpeg2000::filters::analyseHaar(rampeHaar);
-    fileRampeHaarSynth << jpeg2000::filters::synthesisHaar(jpeg2000::filters::analyseHaar(rampe));
-}
