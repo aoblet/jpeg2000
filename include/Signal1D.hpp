@@ -18,20 +18,19 @@ namespace jpeg2000{
     protected:
         std::string _name;          ///< Signal name, used for debug.
         std::vector<double> _val;   ///< Signal values.
-        bool _isPair;               ///< Does the signal need to be pair. Default to true.
 
         static Signal1D _RAMPE;     ///< Rampe Signal "singleton". y = x for x = [0,..., 255]
         static Signal1D _LELECCUM;  ///< Leleccum Signal "singleton".
 
     public:
-        const static Signal1D rampe();
-        const static Signal1D leleccum();
+        static const Signal1D& rampe();
+        static const Signal1D& leleccum();
 
         // constructors
         Signal1D();
         Signal1D(int n);
         Signal1D(int n, double initVal);
-        Signal1D(const std::string & name, int n, double initVal, bool isPair=true);
+        Signal1D(const std::string & name, int n, double initVal);
         Signal1D(const std::string & name);
         Signal1D(const Signal1D& s);
         Signal1D(Signal1D&& s) noexcept;

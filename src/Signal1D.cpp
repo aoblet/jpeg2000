@@ -13,22 +13,21 @@ namespace jpeg2000{
 
     Signal1D::Signal1D():_val(), _name("1D Signal"){};
 
-    Signal1D::Signal1D(const std::string & name, int n, double initVal, bool isPair):
-            _val(std::vector<double>::size_type(isPair && n%2 ? n+1 : n), initVal),
-            _name(name), _isPair(isPair){};
+    Signal1D::Signal1D(const std::string & name, int n, double initVal):
+            _val(std::vector<double>::size_type(n), initVal),
+            _name(name){};
 
-    Signal1D::Signal1D(const std::string& name): Signal1D(name, 0, 0, false){}
+    Signal1D::Signal1D(const std::string& name): Signal1D(name, 0, 0){}
     Signal1D::Signal1D(int n, double initVal): Signal1D("1D Signal", n, initVal){}
     Signal1D::Signal1D(int n) : Signal1D(n, 0){}
-    Signal1D::Signal1D(const Signal1D& s):_val(s._val), _name(s._name), _isPair(s._isPair){};
+    Signal1D::Signal1D(const Signal1D& s):_val(s._val), _name(s._name){};
     Signal1D::Signal1D(std::initializer_list<double> __l    ): _val(__l), _name("1D Signal"){}
 
-    Signal1D::Signal1D(Signal1D&& s) noexcept :_val(std::move(s._val)), _name(std::move(s._name)), _isPair(s._isPair){};
+    Signal1D::Signal1D(Signal1D&& s) noexcept :_val(std::move(s._val)), _name(std::move(s._name)){};
 
     Signal1D& Signal1D::operator=(Signal1D&& other) noexcept {
         std::swap(_val, other._val);
         std::swap(_name, other._name);
-        std::swap(_isPair, other._isPair);
         return *this;
     }
 
@@ -43,7 +42,6 @@ namespace jpeg2000{
     Signal1D& Signal1D::operator=(const Signal1D& other){
         _val = other._val;
         _name = other._name;
-        _isPair = other._isPair;
         return *this;
     }
 
@@ -98,7 +96,7 @@ namespace jpeg2000{
         return out;
     }
 
-    const Signal1D Signal1D::rampe() {
+    const Signal1D& Signal1D::rampe() {
         if(Signal1D::_RAMPE.size())
             return Signal1D::_RAMPE;
         for(int i=0; i<256; ++i)
@@ -106,7 +104,7 @@ namespace jpeg2000{
         return Signal1D::_RAMPE;
     }
 
-    const Signal1D Signal1D::leleccum() {
+    const Signal1D& Signal1D::leleccum() {
         if(Signal1D::_LELECCUM.size())
             return Signal1D::_LELECCUM;
 
