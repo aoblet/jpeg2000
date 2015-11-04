@@ -1,15 +1,12 @@
-//
-// Created by alex on 22/10/15.
-//
-
 #include "Signal1D.hpp"
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <utility>
 
 namespace jpeg2000{
-    Signal1D Signal1D::_RAMPE("rampe");
-    Signal1D Signal1D::_LELECCUM("leleccum");
+    Signal1D Signal1D::_RAMPE("RAMPE");
+    Signal1D Signal1D::_LELECCUM("LELECCUM");
 
     Signal1D::Signal1D():_val(), _name("1D Signal"){};
 
@@ -20,12 +17,20 @@ namespace jpeg2000{
     Signal1D::Signal1D(const std::string& name): Signal1D(name, 0, 0){}
     Signal1D::Signal1D(int n, double initVal): Signal1D("1D Signal", n, initVal){}
     Signal1D::Signal1D(int n) : Signal1D(n, 0){}
-    Signal1D::Signal1D(const Signal1D& s):_val(s._val), _name(s._name){};
-    Signal1D::Signal1D(std::initializer_list<double> __l    ): _val(__l), _name("1D Signal"){}
+    Signal1D::Signal1D(const Signal1D& s){
+        if(this == &s)
+            return;
+        _val = s._val;
+        _name = s._name;
+    }
+    Signal1D::Signal1D(std::initializer_list<double> __l): _val(__l), _name("1D Signal"){}
 
     Signal1D::Signal1D(Signal1D&& s) noexcept :_val(std::move(s._val)), _name(std::move(s._name)){};
 
     Signal1D& Signal1D::operator=(Signal1D&& other) noexcept {
+        if(this == &other)
+            return *this;
+
         std::swap(_val, other._val);
         std::swap(_name, other._name);
         return *this;
@@ -40,6 +45,9 @@ namespace jpeg2000{
     }
 
     Signal1D& Signal1D::operator=(const Signal1D& other){
+        if(this == &other)
+            return *this;
+
         _val = other._val;
         _name = other._name;
         return *this;
@@ -96,30 +104,39 @@ namespace jpeg2000{
         return out;
     }
 
-    const Signal1D& Signal1D::rampe() {
+    const Signal1D& Signal1D::RAMPE() {
         if(Signal1D::_RAMPE.size())
             return Signal1D::_RAMPE;
+
         for(int i=0; i<256; ++i)
             Signal1D::_RAMPE.push_back(i);
         return Signal1D::_RAMPE;
     }
 
-    const Signal1D& Signal1D::leleccum() {
-        if(Signal1D::_LELECCUM.size())
-            return Signal1D::_LELECCUM;
-
-        std::ifstream in(boost::filesystem::path(__FILE__ ).parent_path().string() + "/../assets/leleccum.txt");
+    Signal1D Signal1D::readFromFile(const std::string& filePath){
+        std::ifstream in(filePath);
         std::string l;
         std::stringstream cast;
         double t;
+        Signal1D tmp;
 
         while(getline(in, l)){
             cast.clear();
             cast << l;
 
             if(cast>>t)
-                Signal1D::_LELECCUM.push_back(t);
+                tmp.push_back(t);
         }
+        return tmp;
+    }
+
+    const Signal1D& Signal1D::LELECCUM() {
+        if(Signal1D::_LELECCUM.size())
+            return Signal1D::_LELECCUM;
+
+        const std::string leleccumPath = boost::filesystem::path(__FILE__).parent_path().string() + "/../assets/leleccum.txt";
+        Signal1D::_LELECCUM = std::move(Signal1D::readFromFile(leleccumPath));
+        Signal1D::_LELECCUM.setName("LELECCUM");
         return Signal1D::_LELECCUM;
     }
 
@@ -146,4 +163,16 @@ namespace jpeg2000{
         return tmp;
     }
 
+    double Signal1D::mirrorSymmetry(int i) const{
+        const int doubleSize = 2*size();
+
+        // if the index is greater than the signal itself: take the modulo
+        if (std::abs(i) >= doubleSize)
+            return (*this)[std::abs(i)%size()];
+        if (i < 0)
+            return (*this)[i * -1];
+        if (i >= size())
+            return (*this)[doubleSize -2 -i];
+        return (*this)[i];
+    }
 }

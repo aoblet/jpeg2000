@@ -1,9 +1,4 @@
-//
-// Created by alex on 22/10/15.
-//
-
-#ifndef JPEG2000_SIGNAL1D_HPP
-#define JPEG2000_SIGNAL1D_HPP
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -23,8 +18,9 @@ namespace jpeg2000{
         static Signal1D _LELECCUM;  ///< Leleccum Signal "singleton".
 
     public:
-        static const Signal1D& rampe();
-        static const Signal1D& leleccum();
+        static const Signal1D& RAMPE();     ///< "Singleton" getter of constant rampe signal
+        static const Signal1D& LELECCUM();  ///< "Singleton" getter of constant leleccum signal
+        static Signal1D readFromFile(const std::string& filePath);
 
         // constructors
         Signal1D();
@@ -38,18 +34,39 @@ namespace jpeg2000{
 
         int size() const;
         void push_back(double v);
+
+        /**
+         * Concat two signals together.
+         */
+        Signal1D concat(const Signal1D& other) const;
+
+        /**
+         * Extracts a sub signal from a range
+         * @param f: from index inclusive
+         * @param t: to index inclusive: if -1 extract to the end like python style
+         */
+        Signal1D extract(int f, int t=-1) const;
         double operator[](int i) const;
         double& operator[](int i);
-        Signal1D concat(const Signal1D& other) const;
         std::string name() const;
         void setName(const std::string & name);
-        Signal1D extract(int f, int t=-1) const;
+
+        /**
+         * Double symmetry operation.
+         * @param i: index associated to signal
+         * @return A mirror symmetry value.
+         */
+        double mirrorSymmetry(int i) const;
 
         Signal1D& operator=(Signal1D&& other) noexcept;
         Signal1D& operator=(const Signal1D& other);
+
+        /**
+         * Append a double to the signal.
+         */
         Signal1D& operator+=(const double n);
 
-        // iterators
+        // iterators: iterate over vector
         std::vector<double>::iterator begin();
         std::vector<double>::const_iterator begin() const;
         std::vector<double>::iterator end();
@@ -64,5 +81,3 @@ namespace jpeg2000{
     Signal1D& operator+=(Signal1D& s1, const Signal1D& s2);
     Signal1D operator+(const Signal1D& s1, const Signal1D& s2);
 }
-
-#endif //JPEG2000_SIGNAL_HPP
