@@ -1,0 +1,19 @@
+sudo: false
+
+language: cpp
+
+compiler: gcc
+
+addons:
+  apt:
+    sources: ['boost-latest']
+    packages:
+      - libboost-dev
+
+cache:
+  apt: true
+
+script:
+  - mkdir build && cd build
+  - cmake ..
+  - make
