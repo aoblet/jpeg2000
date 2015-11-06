@@ -34,7 +34,7 @@ namespace haar{
 
     Signal1D _analyseHaar(const Signal1D &inSignal, const Signal1D &_h0, const Signal1D &_h1) {
         // first check that the signal is even
-        if(inSignal.size() % 2)
+        if(!inSignal.isEven())
             throw SignalException::Size("Haar analyse: signal must be even");
 
         // sld == signalLowPassDecimated
@@ -46,7 +46,7 @@ namespace haar{
 
     Signal1D _synthesisHaar(const Signal1D &analysedSignal, const Signal1D &_g0, const Signal1D &_g1) {
         // first check that the signal is even
-        if(analysedSignal.size() % 2)
+        if(!analysedSignal.isEven())
             throw SignalException::Size("Haar synthesis: analysed signal must be even");
 
         Signal1D approximateCoeffs(analysedSignal.extract(0, analysedSignal.size() / 2 - 1));

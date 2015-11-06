@@ -57,6 +57,7 @@ namespace jpeg2000{
          * @return A mirror symmetry value.
          */
         double mirrorSymmetry(int i) const;
+        bool isEven() const;
 
         Signal1D& operator=(Signal1D&& other) noexcept;
         Signal1D& operator=(const Signal1D& other);
