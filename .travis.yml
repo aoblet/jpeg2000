@@ -4,6 +4,10 @@ language: cpp
 
 compiler: g++
 
+branches:
+  only:
+    - develop
+
 addons:
   apt:
     sources:
