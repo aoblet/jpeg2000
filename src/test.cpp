@@ -2,6 +2,7 @@
 #include "decompose.hpp"
 #include "decomposeHaar.hpp"
 #include "decomposeLifting.hpp"
+#include "decomposeAMR.hpp"
 #include "assets.hpp"
 
 #include <fstream>
@@ -10,9 +11,11 @@
 
 
 namespace jpeg2000{ namespace test{
-    void _analyse_synthese(const jpeg2000::Signal1D &in, const std::string &folderOut, bool isHaar, bool is97){
-        std::string command_mkdir("mkdir -p " + folderOut);
-        std::string baseOutPath(folderOut + "/" + in.name() + "_");
+    void _analyse_synthese(const jpeg2000::Signal1D &in, const std::string &folderOut, bool isHaar, bool is97,
+                           bool isAMR, int levelAMR){
+        std::string folderTestsOut = "tests/" + folderOut;
+        std::string command_mkdir("mkdir -p " + folderTestsOut);
+        std::string baseOutPath(folderTestsOut + "/" + in.name() + "_");
         std::string endOutPath(is97 ? "_97" : "");
         endOutPath += ".txt";
 
@@ -30,6 +33,10 @@ namespace jpeg2000{ namespace test{
         if(isHaar){
             analyse = is97 ? decompose::haar::analyseHaar97(in) : decompose::haar::analyseHaar(in);
             synth = is97 ? decompose::haar::synthesisHaar97(analyse) : decompose::haar::synthesisHaar(analyse) ;
+        }
+        else if(isAMR){
+            analyse = decompose::AMR::computeAMR(in, levelAMR);
+            synth = decompose::AMR::computeIAMR(analyse, levelAMR);
         }
         else{
             analyse = decompose::lifting97::analyseLifting97(in);
@@ -81,12 +88,22 @@ namespace jpeg2000{ namespace test{
 
     void lena_haar_haar97_lifting97(){
         const std::string lenaMiddleFile = jpeg2000::assets::paths::LENA_FILE;
-        Signal1D lenaMiddleLine = (Signal1D::readFromFile(lenaMiddleFile));
+        Signal1D lenaMiddleLine = Signal1D::readFromFile(lenaMiddleFile);
         lenaMiddleLine.setName("LenaMiddleLine");
 
         _analyse_sythese_haar(lenaMiddleLine, "test_lena/haar", false);
         _analyse_sythese_haar(lenaMiddleLine, "test_lena/haar97", true);
         _analyse_synthese_lifting97(lenaMiddleLine, "test_lena/lifting97");
+    }
+
+    void lena_analyse_synthese_AMR(){
+        const std::string lenaMiddleFile = jpeg2000::assets::paths::LENA_FILE;
+        Signal1D lenaMiddleLine = Signal1D::readFromFile(lenaMiddleFile);
+        lenaMiddleLine.setName("LenaMiddleLine");
+        _analyse_synthese_AMR(lenaMiddleLine, "test_lena/AMR");
+    }
+    void _analyse_synthese_AMR(const Signal1D& in, const std::string& folderOut){
+        _analyse_synthese(in, folderOut, false, false, true, 10);
     }
 }
 }
