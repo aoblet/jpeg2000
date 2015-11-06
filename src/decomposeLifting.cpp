@@ -27,7 +27,7 @@ namespace lifting97{
 
     Signal1D analyseLifting97(const Signal1D &signal) {
         // signal must be even
-        if (signal.size() % 2)
+        if (!signal.isEven())
             throw jpeg2000::SignalException::Size("analyseLifting97: signal must be even");
 
         Signal1D analysed(signal);
@@ -55,8 +55,8 @@ namespace lifting97{
 
     Signal1D synthesisLifting97(const Signal1D &liftedSignal) {
         // signal must be even
-        if (liftedSignal.size() % 2)
-            throw jpeg2000::SignalException::Size("analyseLifting97: signal must be even");
+        if (!liftedSignal.isEven())
+            throw jpeg2000::SignalException::Size("synthesisLifting97: signal must be even");
 
         Signal1D synthesis;
         int halfSize_liftedSignal = liftedSignal.size() / 2;
@@ -70,13 +70,13 @@ namespace lifting97{
         // un-scaling
         scaleLifting97(lifting97::constants::SCALING_COEFF, synthesis);
         // second maj: on even values
-        updateLifting97(lifting97::constants::UPDATE_SECOND_COEFF, synthesis);
+        updateLifting97(-lifting97::constants::UPDATE_SECOND_COEFF, synthesis);
         // second prediction: on odd values
-        predictionLifting97(lifting97::constants::PREDICTION_SECOND_COEFF, synthesis);
+        predictionLifting97(-lifting97::constants::PREDICTION_SECOND_COEFF, synthesis);
         // first maj: on even values
-        updateLifting97(lifting97::constants::UPDATE_FIRST_COEFF, synthesis);
+        updateLifting97(-lifting97::constants::UPDATE_FIRST_COEFF, synthesis);
         // first prediction: on odd values
-        predictionLifting97(lifting97::constants::PREDICTION_FIRST_COEFF, synthesis);
+        predictionLifting97(-lifting97::constants::PREDICTION_FIRST_COEFF, synthesis);
 
         return synthesis;
     }
