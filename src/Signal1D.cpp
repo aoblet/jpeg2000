@@ -2,7 +2,6 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include <fstream>
-#include <utility>
 
 namespace jpeg2000{
     Signal1D Signal1D::_RAMPE("RAMPE");
@@ -62,11 +61,11 @@ namespace jpeg2000{
     }
 
     double Signal1D::operator[](int i) const{
-        return _val[i];
+        return _val.at((ulong)i);
     }
 
     double& Signal1D::operator[](int i){
-        return _val[i];
+        return _val.at((ulong)i);
     }
 
     std::vector<double>::iterator Signal1D::begin(){
@@ -146,6 +145,9 @@ namespace jpeg2000{
     }
 
     Signal1D Signal1D::concat(const Signal1D& other) const{
+        if(!other.size())
+            return *this;
+
         Signal1D tmp(*this);
         tmp._val.insert(tmp._val.end(), other._val.begin(), other._val.end());
         return tmp;
@@ -161,6 +163,10 @@ namespace jpeg2000{
         for(int i=f; i <= t; ++i)
             tmp.push_back((*this)[i]);
         return tmp;
+    }
+
+    bool Signal1D::isEven() const{
+        return !(size()%2);
     }
 
     double Signal1D::mirrorSymmetry(int i) const{
