@@ -76,5 +76,7 @@ namespace test{
      */
     void lena_analyse_synthese_AMR();
 
+    void lean_AMR_statistics(int level=4);
+
 }
 }

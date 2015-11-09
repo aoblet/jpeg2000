@@ -87,24 +87,31 @@ namespace jpeg2000{ namespace test{
     }
 
     void lena_haar_haar97_lifting97(){
-        const std::string lenaMiddleFile = jpeg2000::assets::paths::LENA_FILE;
-        Signal1D lenaMiddleLine = Signal1D::readFromFile(lenaMiddleFile);
-        lenaMiddleLine.setName("LenaMiddleLine");
-
-        _analyse_sythese_haar(lenaMiddleLine, "test_lena/haar", false);
-        _analyse_sythese_haar(lenaMiddleLine, "test_lena/haar97", true);
-        _analyse_synthese_lifting97(lenaMiddleLine, "test_lena/lifting97");
+        _analyse_sythese_haar(Signal1D::LENA(), "test_lena/haar", false);
+        _analyse_sythese_haar(Signal1D::LENA(), "test_lena/haar97", true);
+        _analyse_synthese_lifting97(Signal1D::LENA(), "test_lena/lifting97");
     }
 
     void lena_analyse_synthese_AMR(){
-        const std::string lenaMiddleFile = jpeg2000::assets::paths::LENA_FILE;
-        Signal1D lenaMiddleLine = Signal1D::readFromFile(lenaMiddleFile);
-        lenaMiddleLine.setName("LenaMiddleLine");
-        _analyse_synthese_AMR(lenaMiddleLine, "test_lena/AMR");
+        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR");
     }
     void _analyse_synthese_AMR(const Signal1D& in, const std::string& folderOut){
         _analyse_synthese(in, folderOut, false, false, true, 10);
     }
+
+    void lean_AMR_statistics(int level){
+        Signal1D amrAnalyse = jpeg2000::decompose::AMR::computeAMR(Signal1D::LENA(), level);
+        std::cout << "LENA statistics" << std::endl;
+
+        std::cout << "LENA original max " << Signal1D::LENA().max() << std::endl;
+        std::cout << "LENA original min " << Signal1D::LENA().min() << std::endl;
+        std::cout << "LENA original mean " << Signal1D::LENA().mean() << std::endl;
+
+        std::cout << "LENA AMR max " << amrAnalyse.max() << std::endl;
+        std::cout << "LENA AMR min " << amrAnalyse.min() << std::endl;
+        std::cout << "LENA AMR mean " << amrAnalyse.mean() << std::endl;
+    }
+
 }
 }
 

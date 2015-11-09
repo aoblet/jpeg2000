@@ -59,14 +59,14 @@ namespace AMR{
 
 
         reconstructed = std::move(amrSignal.extract(0, indexLimitSubBand));
-        for (int i = 0; i < level; ++i) {
+        for (int i = 0; i < level - 1; ++i) {
             tmpUnlifted = std::move(decompose::lifting97::synthesisLifting97(reconstructed));
-            if(i == level -1)
-                tmpSubDetails = Signal1D();
-            else
-                tmpSubDetails = std::move(amrSignal.extract(tmpUnlifted.size(), tmpUnlifted.size()*2-1));
+            tmpSubDetails = std::move(amrSignal.extract(tmpUnlifted.size(), tmpUnlifted.size()*2-1));
             reconstructed = std::move(tmpUnlifted.concat(tmpSubDetails));
         }
+        // when last turn: no details.
+        // so we take out last turn and directly process the synthesisLifting on the entire signal
+        reconstructed = std::move(decompose::lifting97::synthesisLifting97(reconstructed));
         return reconstructed;
     }
 
