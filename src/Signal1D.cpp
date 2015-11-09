@@ -2,10 +2,13 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <algorithm>
+#include "assets.hpp"
 
 namespace jpeg2000{
     Signal1D Signal1D::_RAMPE("RAMPE");
     Signal1D Signal1D::_LELECCUM("LELECCUM");
+    Signal1D Signal1D::_LENA("LELECCUM");
 
     Signal1D::Signal1D():_val(), _name("1D Signal"){};
 
@@ -103,7 +106,7 @@ namespace jpeg2000{
         return out;
     }
 
-    const Signal1D& Signal1D::RAMPE() {
+    const Signal1D& Signal1D::RAMPE(){
         if(Signal1D::_RAMPE.size())
             return Signal1D::_RAMPE;
 
@@ -129,14 +132,22 @@ namespace jpeg2000{
         return tmp;
     }
 
-    const Signal1D& Signal1D::LELECCUM() {
+    const Signal1D& Signal1D::LELECCUM(){
         if(Signal1D::_LELECCUM.size())
             return Signal1D::_LELECCUM;
 
-        const std::string leleccumPath = boost::filesystem::path(__FILE__).parent_path().string() + "/../assets/leleccum.txt";
-        Signal1D::_LELECCUM = std::move(Signal1D::readFromFile(leleccumPath));
+        Signal1D::_LELECCUM = std::move(Signal1D::readFromFile(assets::paths::LELECCUM_FILE));
         Signal1D::_LELECCUM.setName("LELECCUM");
         return Signal1D::_LELECCUM;
+    }
+
+    const Signal1D& Signal1D::LENA(){
+        if(Signal1D::_LENA.size())
+            return Signal1D::_LENA;
+
+        Signal1D::_LENA = std::move(Signal1D::readFromFile(assets::paths::LENA_FILE));
+        Signal1D::_LENA.setName("LenaMiddleLine");
+        return Signal1D::_LENA;
     }
 
     Signal1D& Signal1D::operator+=(const double n){
@@ -180,5 +191,22 @@ namespace jpeg2000{
         if (i >= size())
             return (*this)[doubleSize -2 -i];
         return (*this)[i];
+    }
+
+    double Signal1D::max() const{
+        if(!_val.size())
+            return 0;
+        return *std::max_element(_val.begin(), _val.end());
+    }
+
+    double Signal1D::min() const{
+        if(!_val.size())
+            return 0;
+        return *std::min_element(_val.begin(), _val.end());
+    }
+    double Signal1D::mean() const{
+        if(!_val.size())
+            return 0;
+        return std::accumulate(_val.begin(), _val.end(), 0.0) / _val.size();
     }
 }

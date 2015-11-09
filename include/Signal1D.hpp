@@ -16,10 +16,12 @@ namespace jpeg2000{
 
         static Signal1D _RAMPE;     ///< Rampe Signal "singleton". y = x for x = [0,..., 255]
         static Signal1D _LELECCUM;  ///< Leleccum Signal "singleton".
+        static Signal1D _LENA;      ///< Lena file Signal "singleton".
 
     public:
         static const Signal1D& RAMPE();     ///< "Singleton" getter of constant rampe signal
         static const Signal1D& LELECCUM();  ///< "Singleton" getter of constant leleccum signal
+        static const Signal1D& LENA();      ///< "Singleton" getter of constant lena signal
         static Signal1D readFromFile(const std::string& filePath);
 
         // constructors
@@ -57,6 +59,9 @@ namespace jpeg2000{
          * @return A mirror symmetry value.
          */
         double mirrorSymmetry(int i) const;
+        double max() const;
+        double min() const;
+        double mean() const;
         bool isEven() const;
 
         Signal1D& operator=(Signal1D&& other) noexcept;
