@@ -46,6 +46,15 @@ namespace jpeg2000{
         _name = name;
     }
 
+    void Signal1D::toFile(const std::string& filePath){
+        std::ofstream out(filePath);
+        if(!out.is_open()){
+            std::cout << "Warning: Signal1D::toFile - cannot save at the specified location: " + filePath;
+            return;
+        }
+        out << *this;
+    }
+
     Signal1D& Signal1D::operator=(const Signal1D& other){
         if(this == &other)
             return *this;

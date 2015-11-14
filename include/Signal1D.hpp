@@ -52,6 +52,7 @@ namespace jpeg2000{
         double& operator[](int i);
         std::string name() const;
         void setName(const std::string & name);
+        void toFile(const std::string& filePath);
 
         /**
          * Double symmetry operation.
