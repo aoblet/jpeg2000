@@ -9,9 +9,9 @@ namespace SignalException{
         using std::logic_error::logic_error;
     };
 
-    class IndexOutOfBounds : public std::logic_error{
+    class OutOfRange : public std::out_of_range{
     public:
-        using std::logic_error::logic_error;
+        using std::out_of_range::out_of_range;
     };
 }
 }
