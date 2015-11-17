@@ -3,11 +3,14 @@
 #include "decomposeHaar.hpp"
 #include "decomposeLifting.hpp"
 #include "decomposeAMR.hpp"
+#include "decompose2D.hpp"
 #include "assets.hpp"
 
 #include <fstream>
 #include <algorithm>
 #include <assets.hpp>
+#include <boost/filesystem/path.hpp>
+#include "bitmap.hpp"
 
 
 namespace jpeg2000{ namespace test{
@@ -99,7 +102,7 @@ namespace jpeg2000{ namespace test{
         _analyse_synthese(in, folderOut, false, false, true, 10);
     }
 
-    void lean_AMR_statistics(int level){
+    void lena_AMR_statistics(int level){
         Signal1D amrAnalyse = jpeg2000::decompose::AMR::computeAMR(Signal1D::LENA(), level);
         std::cout << "LENA statistics" << std::endl;
 
@@ -112,6 +115,27 @@ namespace jpeg2000{ namespace test{
         std::cout << "LENA AMR mean " << amrAnalyse.mean() << std::endl;
     }
 
+    void _lena2D(bool isHaar, int levelAMR){
+        const std::string folderOut = "tests/bmp/";
+        const std::string commandMkdir = "mkdir -p " + folderOut;
+        system(commandMkdir.c_str());
+        Signal2D mat(bmp::loadBMP_256(assets::paths::LENA_BMP));
+
+        if(isHaar)
+            bmp::writeBMP_256(folderOut + "lenaHaar.bmp", decompose::_2D::analyse2D_97(mat));
+        else{
+            Signal2D analyse(decompose::_2D::amr(mat, levelAMR));
+            bmp::writeBMP_256(folderOut + "lenaAMR_analyse.bmp", analyse);
+            bmp::writeBMP_256(folderOut + "lenaAMR_synth.bmp", decompose::_2D::iamr(analyse, levelAMR));
+        }
+    }
+    void lena2D_haar(){
+        _lena2D(true);
+    }
+
+    void lena2D_AMR(){
+        _lena2D(false, 5);
+    }
 }
 }
 

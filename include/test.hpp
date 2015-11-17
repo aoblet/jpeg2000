@@ -76,7 +76,11 @@ namespace test{
      */
     void lena_analyse_synthese_AMR();
 
-    void lean_AMR_statistics(int level=4);
+    void lena_AMR_statistics(int level = 4);
+
+    void _lena2D(bool isHaar, int levelAMR=0);
+    void lena2D_haar();
+    void lena2D_AMR();
 
 }
 }
