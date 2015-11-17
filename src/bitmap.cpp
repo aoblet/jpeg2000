@@ -40,10 +40,14 @@ namespace bmp{
         bmpFile.read((char*)pixels, pixelsSize);
 
         // write pixel values inside the signal
+        // The pixel data is organized in rows from bottom to top and, within each row, from left to right.
+        // Each row is called a "scan line"
+        // so the last line corresponds to the first line: need to "transpose"
+
         for(int y=0; y<height; ++y) {
             Signal1D tmp;
             for(int x=0; x<width; ++x){
-                tmp += (double) pixels[y*width + x];
+                tmp += (double) pixels[pixelsSize - width*(y+1) + x];
             }
             res.push_back(std::move(tmp));
         }
@@ -61,11 +65,16 @@ namespace bmp{
         unsigned int height = (unsigned int) s.size(),
                      width = (unsigned int) s[0].size(),
                      pixelsSize = width * height;
+        width = s.cols();
+        height = s.rows();
+        pixelsSize = width*height;
         unsigned char pixels[pixelsSize];
 
+        // the first line is the last line and so one; é
         for (int y=0; y< height; y++) {
-            for (int x=0; x< width; x++)
-                pixels[x + width*y] = (unsigned char) boost::algorithm::clamp(s[y][x], 0, 255);
+            for (int x=0; x< width; x++){
+                pixels[pixelsSize - (width*(y+1)) + x] = (unsigned char) boost::algorithm::clamp(s[y][x], 0, 255);
+            }
         }
 
         infoBMP.header.type = 19778;
@@ -89,9 +98,8 @@ namespace bmp{
         // writing the palette to gray level
         unsigned char palette[256*4];
         unsigned char intToUChar;
-        unsigned int tmpArrayChar = 0;
         int grayOffset = 0;
-        for(int grayVal=1; grayVal<255; ++grayVal){
+        for(int grayVal=0; grayVal<256; ++grayVal){
             intToUChar = grayVal;
             palette[grayOffset] = intToUChar;
             palette[grayOffset + 1] = intToUChar;
