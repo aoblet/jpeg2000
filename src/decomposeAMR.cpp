@@ -9,11 +9,14 @@ namespace AMR{
     Signal1D computeAMR(const Signal1D &signal, int level) {
         if (!signal.isEven())
             throw SignalException::Size("computeAMR: signal is odd");
-        if (level < 1)
+        if (level < -1)
             throw std::logic_error("computeAMR: level must be greater than 0");
 
-        clampLevelToMax(level, maxLevelFromNumber(signal.size()));
+        int maxLevel = maxLevelFromNumber(signal.size());
+        if (level == -1)
+            level = maxLevel;
 
+        clampLevelToMax(level, maxLevel);
         Signal1D approximatesCoeffs(signal), detailsCoeffs, tmpLifted, tmpDetails;
 
         // algo recurse to iteratif:
@@ -36,12 +39,15 @@ namespace AMR{
 
     Signal1D computeIAMR(const Signal1D &amrSignal, int level) {
         if (!amrSignal.isEven())
-            throw SignalException::Size("computeAMR: signal is odd");
-        if (level < 1)
+            throw SignalException::Size("computeIAMR: signal is odd");
+        if (level < -1)
             throw std::logic_error("computeIAMR: level must be greater than 0");
 
-        clampLevelToMax(level, maxLevelFromNumber(amrSignal.size()));
+        int maxLevel = maxLevelFromNumber(amrSignal.size());
+        if(level == -1)
+            level = maxLevel;
 
+        clampLevelToMax(level, maxLevel);
         Signal1D tmpUnlifted, tmpSubDetails, reconstructed;
 
         int sizeAmr = amrSignal.size();
@@ -72,7 +78,7 @@ namespace AMR{
 
     int maxLevelFromNumber(int n) {
         int cpt = 0;
-        while (!(n % 2)) {
+        while (!(n % 2) && n > 0) {
             n /= 2;
             ++cpt;
         }

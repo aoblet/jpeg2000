@@ -12,7 +12,7 @@ namespace AMR{
     /**
      * Compute the analyse multi resolution with a given level.
      * @param signal: Signal to decompose.
-     * @param level: Decomposition level
+     * @param level: Decomposition level. If equals to -1 take the maximum
      */
     Signal1D computeAMR(const Signal1D& signal, int level);
     /**
