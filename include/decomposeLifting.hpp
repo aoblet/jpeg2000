@@ -51,8 +51,10 @@ namespace lifting97{
 namespace constants{
     const double PREDICTION_FIRST_COEFF = -1.586134342;
     const double PREDICTION_SECOND_COEFF = 0.8829110762;
+
     const double UPDATE_FIRST_COEFF = -0.05298011854;
-    const double UPDATE_SECOND_COEFF = -1.586134342;
+    const double UPDATE_SECOND_COEFF = 0.4435068522;
+
     const double SCALING_COEFF = 1.149604398;
 }
 }
