@@ -4,6 +4,7 @@
 #include "decomposeHaar.hpp"
 #include <iostream>
 #include "bitmap.hpp"
+#include <stdexcept>
 #include <cmath>
 
 namespace jpeg2000{

@@ -86,11 +86,11 @@ namespace AMR{
     }
 
     void clampLevelToMax(int& level, int max){
-        if(level > max){
-            std::cout << "WARNING: AMR compute level greater than max: " << level << " > " << max << std::endl;
-            std::cout << "Level set to max " << max << std::endl;
-            level = max;
-        }
+        if(level < max)
+            return;
+        std::cout << "WARNING: AMR compute level greater than max: " << level << " > " << max << std::endl;
+        std::cout << "Level set to max " << max << std::endl;
+        level = max;
     }
 }
 }
