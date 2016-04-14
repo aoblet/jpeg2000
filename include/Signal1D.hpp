@@ -40,7 +40,7 @@ namespace jpeg2000{
         /**
          * Concat two signals together.
          */
-        Signal1D concat(const Signal1D& other) const;
+        Signal1D concat(const Signal1D& other);
 
         /**
          * Extracts a sub signal from a range

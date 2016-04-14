@@ -13,6 +13,7 @@ namespace AMR{
             throw std::logic_error("computeAMR: level must be greater than 0");
 
         int maxLevel = maxLevelFromNumber(signal.size());
+
         if (level == -1)
             level = maxLevel;
 
@@ -32,7 +33,15 @@ namespace AMR{
             approximatesCoeffs = std::move(tmpLifted.extract(0, tmpLifted.size() / 2 - 1));
             tmpDetails = std::move(tmpLifted.extract(tmpLifted.size() / 2));
             detailsCoeffs = std::move(tmpDetails.concat(detailsCoeffs));
+
+//            std::cout << "details: min " << tmpDetails.min() << std::endl;
+//            std::cout << "details: max " << tmpDetails.max() << std::endl;
+//            std::cout << "details: mean " << tmpDetails.mean() << std::endl;
+
         }
+//        std::cout << "Approximates: min " << approximatesCoeffs.min() << std::endl;
+//        std::cout << "Approximates: max " << approximatesCoeffs.max() << std::endl;
+//        std::cout << "Approximates: mean " << approximatesCoeffs.mean() << std::endl;
 
         return approximatesCoeffs.concat(detailsCoeffs);
     }

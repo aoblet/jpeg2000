@@ -69,7 +69,7 @@ namespace test{
     /**
      * Function which factorize to process the AMR process
      */
-    void _analyse_synthese_AMR(const Signal1D& in, const std::string& folderOut);
+    void _analyse_synthese_AMR(const Signal1D& in, const std::string& folderOut, int levelAMR);
 
     /**
      * Does the analyse reconstruction AMR / IAMR onto lena file signal.
@@ -81,6 +81,10 @@ namespace test{
     void _lena2D(bool isHaar, int levelAMR=0);
     void lena2D_haar();
     void lena2D_AMR();
-
+    void statsMeanVariance2D();
+    void statsDebit();
+    void quantify();
+    void peakSignalNoiseRatio(float debitGlobal);
+    void compressQuantlmIdx(float debit);
 }
 }

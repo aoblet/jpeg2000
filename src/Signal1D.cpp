@@ -110,7 +110,7 @@ namespace jpeg2000{
 
     std::ostream& operator<<(std::ostream &out, const Signal1D &signal) {
         out << "# Representation of: " << signal._name << std::endl;
-        for(auto tt: signal)
+        for(auto& tt: signal)
             out << tt << std::endl;
         return out;
     }
@@ -164,13 +164,12 @@ namespace jpeg2000{
         return *this;
     }
 
-    Signal1D Signal1D::concat(const Signal1D& other) const{
+    Signal1D Signal1D::concat(const Signal1D& other){
         if(!other.size())
             return *this;
 
-        Signal1D tmp(*this);
-        tmp._val.insert(tmp._val.end(), other._val.begin(), other._val.end());
-        return tmp;
+        _val.insert(_val.end(), other._val.begin(), other._val.end());
+        return *this;
     }
 
     Signal1D Signal1D::extract(int f, int t) const{

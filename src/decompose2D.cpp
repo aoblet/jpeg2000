@@ -6,6 +6,7 @@
 #include "bitmap.hpp"
 #include <stdexcept>
 #include <cmath>
+#include <assert.h>
 
 namespace jpeg2000{
 namespace decompose{
@@ -89,9 +90,14 @@ namespace _2D{
         Signal2D bmpMatrix(s);
         int amrWidth = s.cols()/(std::pow(2,level-1)),
             amrHeight = s.rows()/(std::pow(2,level-1));
+//        int amrWidth = s.cols(),
+//            amrHeight = s.rows();
 
         Signal2D amrMatrix;
         Signal2D iamrCols;
+
+        std::cout << amrWidth << std::endl;
+        std::cout << amrHeight << std::endl;
 
         for (int l = 1; l <= level; ++l) {
             amrMatrix = bmpMatrix.extract(amrWidth, amrHeight);
@@ -99,12 +105,12 @@ namespace _2D{
 
             // the iamrCols[i] contains the imar signal of column i (transposed)
             for (int i = 0; i < amrMatrix.cols(); ++i)
-                iamrCols[i] = std::move(decompose::lifting97::synthesisLifting97(amrMatrix.col(i)));
+                iamrCols[i] = std::move(decompose::AMR::computeIAMR(amrMatrix.col(i), 1));
 
             // once the iamr columns is done, we need to compute the iamr of the lines
             // now let's compute the imar of the col(i) as we stored the previous results as transposed
             for (int i = 0; i < iamrCols.rows(); ++i)
-                bmpMatrix.eraseRow(i, std::move(decompose::lifting97::synthesisLifting97(iamrCols.col(i))));
+                bmpMatrix.eraseRow(i, std::move(decompose::AMR::computeIAMR(iamrCols.col(i), 1)));
 
             amrWidth *= 2;
             amrHeight *= 2;
@@ -112,7 +118,24 @@ namespace _2D{
         }
         return bmpMatrix;
     }
+    double quadraticError(const Signal2D &s1, const Signal2D &s2){
+        assert(s1.cols() == s2.cols() && s1.rows() == s2.rows());
+        double error = 0;
 
+        for(int y = 0; y< s1.rows(); ++y) {
+            for (int x = 0; x < s1.cols(); ++x) {
+                error += std::pow(s1[y][x] - s2[y][x], 2);
+            }
+        }
+        return error;
+    }
+
+    double peakSignalNoiseRatio(const Signal2D &s1, const Signal2D &s2) {
+        assert(s1.cols() == s2.cols() && s1.rows() == s2.rows());
+        double mse = quadraticError(s1, s2)  / (s1.rows() * s1.cols());
+        std::cout << " MSE " <<  mse << std::endl;
+        return 10 * std::log10(std::pow(255,2) / mse);
+    }
 }
 }
 }

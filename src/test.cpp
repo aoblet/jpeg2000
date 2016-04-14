@@ -5,6 +5,7 @@
 #include "decomposeAMR.hpp"
 #include "decompose2D.hpp"
 #include "assets.hpp"
+#include "statistics.hpp"
 
 #include <fstream>
 #include <algorithm>
@@ -96,10 +97,18 @@ namespace jpeg2000{ namespace test{
     }
 
     void lena_analyse_synthese_AMR(){
-        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR");
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/1", 1);
+        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/2", 2);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/3", 3);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/4", 4);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/5", 5);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/6", 6);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/7", 7);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/8", 8);
+//        _analyse_synthese_AMR(Signal1D::LENA(), "test_lena/AMR/9", 9);
     }
-    void _analyse_synthese_AMR(const Signal1D& in, const std::string& folderOut){
-        _analyse_synthese(in, folderOut, false, false, true, 10);
+    void _analyse_synthese_AMR(const Signal1D& in, const std::string& folderOut, int levelAMR){
+        _analyse_synthese(in, folderOut, false, false, true, levelAMR);
     }
 
     void lena_AMR_statistics(int level){
@@ -125,19 +134,109 @@ namespace jpeg2000{ namespace test{
             bmp::writeBMP_256(folderOut + "lenaHaar.bmp", decompose::_2D::analyse2D_97(mat));
         else{
             Signal2D analyse(decompose::_2D::amr(mat, levelAMR));
-            bmp::writeBMP_256(folderOut + "lenaAMR_analyse.bmp", analyse);
-            bmp::writeBMP_256(folderOut + "lenaAMR_synth.bmp", decompose::_2D::iamr(analyse, levelAMR));
+            Signal2D synth(decompose::_2D::iamr(analyse, levelAMR));
+
+            bmp::writeBMP_256(folderOut + "lenaAMR_analyse2.bmp", analyse);
+            bmp::writeBMP_256(folderOut + "lenaAMR_synth2.bmp", synth);
+            std::cout << "MSE AMR level " << levelAMR << std::endl;
+            std::cout << decompose::_2D::quadraticError(mat, synth);
         }
+
     }
     void lena2D_haar(){
         _lena2D(true);
     }
 
     void lena2D_AMR(){
-        _lena2D(false, 5);
+        _lena2D(false, 3);
     }
+
+    void statsMeanVariance2D(){
+        const std::string folderOut = "tests/bmp/";
+        const std::string commandMkdir = "mkdir -p " + folderOut;
+        system(commandMkdir.c_str());
+
+        int levelAMR = 3;
+        Signal2D s = decompose::_2D::amr(bmp::loadBMP_256(assets::paths::LENA_BMP), levelAMR);
+
+        std::vector<ResultStat> res;
+        statistics::computeMeanVarianceSubbands2D(s, levelAMR, res);
+        for(auto& r: res){
+            std::cout << r << std::endl;
+        }
+    }
+
+    void statsDebit(){
+        const std::string folderOut = "tests/debit/";
+        const std::string commandMkdir = "mkdir -p " + folderOut;
+        system(commandMkdir.c_str());
+
+        int levelAMR = 3;
+        Signal2D s = decompose::_2D::amr(bmp::loadBMP_256(assets::paths::LENA_BMP), levelAMR);
+
+        std::vector<ResultStat> res;
+        float debitGlobal = 1;
+        statistics::computeDebitSubbands(s, levelAMR, debitGlobal, res);
+        for(auto& r: res){
+            std::cout << r.debit << std::endl;
+        }
+        std::cout << res.size() ;
+    }
+
+    void quantify(){
+        int levelAMR = 3;
+        const std::string folderOut = "tests/quantlm/";
+        const std::string commandMkdir = "mkdir -p " + folderOut;
+        system(commandMkdir.c_str());
+        Signal2D s = decompose::_2D::amr(bmp::loadBMP_256(assets::paths::LENA_BMP), levelAMR);
+
+        std::vector<ResultStat> res;
+        float debitGlobal = 1;
+
+        statistics::computeQuantlmSubbands(s, levelAMR, debitGlobal, res);
+        bmp::writeBMP_256(folderOut + "lenaAMR_analyse3.bmp", decompose::_2D::iamr(s, levelAMR));
+    }
+
+    void peakSignalNoiseRatio(float debitGlobal){
+        int levelAMR = 3;
+        const std::string folderOut = "tests/psnr/";
+        const std::string commandMkdir = "mkdir -p " + folderOut;
+        system(commandMkdir.c_str());
+        Signal2D original(bmp::loadBMP_256(assets::paths::LENA_BMP));
+        Signal2D s = decompose::_2D::amr(original, levelAMR);
+
+        std::vector<ResultStat> res;
+        statistics::computeQuantlmSubbands(s, levelAMR, debitGlobal, res);
+        Signal2D synth(decompose::_2D::iamr(s, levelAMR));
+
+//        std::cout << " PSNR " << std::endl;
+//        std::cout << " Level AMR " << levelAMR << std::endl;
+//        std::cout << " Debit global " << debitGlobal << std::endl;
+//        std::cout << " PSNR " << decompose::_2D::peakSignalNoiseRatio(synth, original) << std::endl;
+        std::cout << decompose::_2D::peakSignalNoiseRatio(synth, original) << std::endl;
+        bmp::writeBMP_256(folderOut + "leanAMR_psnr.bmp", synth);
+    }
+
+    void compressQuantlmIdx(float debit){
+        int levelAMR = 3;
+        const std::string folderOut = "tests/compress/";
+        const std::string commandMkdir = "mkdir -p " + folderOut;
+        system(commandMkdir.c_str());
+        Signal2D s = decompose::_2D::amr(bmp::loadBMP_256(assets::paths::LENA_BMP), levelAMR);
+
+        std::vector<ResultStat> res;
+
+        statistics::computeQuantlmSubbands(s, levelAMR, debit, res, true);
+
+        std::fstream compress(folderOut + "lena_" + std::to_string(debit) + ".bin", std::ios::out);
+        for(int y = 0; y< s.rows(); ++y) {
+            for (int x = 0; x < s.cols(); ++x) {
+                compress.write((char*)&s[y][x], sizeof(double));
+            }
+        }
+
+        bmp::writeBMP_256(folderOut + "lena " + std::to_string(debit) + ".bmp", decompose::_2D::iamr(s, levelAMR));
+    }
+
 }
 }
-
-
-
